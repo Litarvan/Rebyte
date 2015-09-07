@@ -2,8 +2,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
-group = 'fr.theshark34.re-actors'
-version = '1.0.0-BETA'
+group = 'fr.theshark34.reactors'
+version = '1.0.1-BETA'
 archivesBaseName = 'rebyte'
 
 sourceCompatibility = 1.6

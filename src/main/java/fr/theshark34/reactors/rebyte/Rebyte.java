@@ -69,10 +69,41 @@ public class Rebyte {
     private int index;
 
     /**
-     * Empty constructor, you will need to do setCurrentFile
+     * Empty constructor, you will need to do setCurrentFile/setBytes
      * to select the file to read.
      */
     public Rebyte() {
+    }
+
+    /**
+     * Constructor with a file to read (but you can change it
+     * with the setCurrentFile method).
+     *
+     * @param fileToRead
+     *            The file to read
+     */
+    public Rebyte(File fileToRead) throws IOException {
+        // Checking if the file to read is not null
+        if(fileToRead == null)
+            throw new IllegalArgumentException("fileToRead == null");
+
+        this.currentFile = fileToRead;
+        this.bytes = read(currentFile);
+    }
+
+    /**
+     * Constructor with somes bytes to read (but you can change it
+     * with the setBytes method).
+     *
+     * @param bytesToRead
+     *            The bytes to read
+     */
+    public Rebyte(byte[] bytesToRead) {
+        // Checking if the bytes to read is not null
+        if(bytesToRead == null)
+            throw new IllegalArgumentException("bytesToRead == null");
+
+        this.bytes = bytesToRead;
     }
 
     /**
@@ -86,8 +117,9 @@ public class Rebyte {
         if(this.currentFile == null)
             throw new IllegalStateException("currentFile == null");
 
-        // Getting the bytes of the file
-        bytes = read(currentFile);
+        // Getting the current byte array
+        if(this.bytes == null)
+            throw new IllegalStateException("bytes == null");
 
         // For each byte
         while(index < bytes.length) {
@@ -100,21 +132,6 @@ public class Rebyte {
                     if (code.getCode() == b)
                         code.getAction().onCodeRead(this, code.getCode());
         }
-    }
-
-    /**
-     * Constructor with a file to read (but you can change it
-     * with the setCurrentFile method).
-     *
-     * @param fileToRead
-     *            The file to read
-     */
-    public Rebyte(File fileToRead) {
-        // Checking if the file to read is not null
-        if(fileToRead == null)
-            throw new IllegalArgumentException("fileToRead == null");
-
-        this.currentFile = fileToRead;
     }
 
     /**
@@ -141,12 +158,13 @@ public class Rebyte {
      * @param currentFile
      *            The new file to read
      */
-    public void setCurrentFile(File currentFile) {
+    public void setCurrentFile(File currentFile) throws IOException {
         // Checking if the file to read is not null
         if(currentFile == null)
             throw new IllegalArgumentException("currentFile == null");
 
         this.currentFile = currentFile;
+        this.bytes = read(currentFile);
     }
 
     /**
@@ -159,15 +177,15 @@ public class Rebyte {
     }
 
     /**
-     * Skip all characters until one given
+     * Skip all bytes until one given
      *
      * @param byteToWait
-     *            The character to wait for
+     *            The byte to wait for
      */
-    public void waitUntil(byte byteToWait) throws IOException {
+    public void waitUntil(byte byteToWait) {
         // Checking the bytes
         if(bytes == null)
-            throw new IllegalStateException("You need to start reading before");
+            throw new IllegalStateException("You need to give a file or some bytes to read");
 
         // Waiting until the given byte
         byte currentByte = 0;
@@ -177,15 +195,31 @@ public class Rebyte {
     }
 
     /**
+     * Skip a given number of bytes
+     *
+     * @param bytesToSkip
+     *            The number of byte to skip
+     */
+    public void waitFor(long bytesToSkip) {
+        // Checking the bytes
+        if(bytes == null)
+            throw new IllegalStateException("You need to give a file or some bytes to read");
+
+        // Skipping a given number of byte
+        for(int i = 0; i < bytesToSkip; i++)
+            getNext();
+    }
+
+    /**
      * Read a given number of byte
      *
      * @param numberOfByteToRead
      *            The number of byte to read
      */
-    public byte[] readFor(long numberOfByteToRead) throws IOException {
+    public byte[] readFor(long numberOfByteToRead) {
         // Checking the bytes
         if(bytes == null)
-            throw new IllegalStateException("You need to start reading before");
+            throw new IllegalStateException("You need to give a file or some bytes to read");
 
         // Creating an array list of bytes
         ArrayList<Byte> readBytes = new ArrayList<Byte>();
@@ -204,10 +238,10 @@ public class Rebyte {
      * @param byteToWait
      *            The byte to wait for
      */
-    public byte[] readUntil(byte byteToWait) throws IOException {
+    public byte[] readUntil(byte byteToWait) {
         // Checking the bytes
         if(bytes == null)
-            throw new IllegalStateException("You need to start reading before");
+            throw new IllegalStateException("You need to give a file or some bytes to read");
 
         // Creating an array list of bytes
         ArrayList<Byte> readBytes = new ArrayList<Byte>();
@@ -278,12 +312,54 @@ public class Rebyte {
      *
      * @return The next byte
      */
-    public byte getNext() throws IOException {
+    public byte getNext() {
         byte next = bytes[index];
         this.index++;
 
         return next;
     }
 
+    /**
+     * Set the bytes to read
+     *
+     * @param bytes
+     *            The bytes to read
+     */
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
+    /**
+     * Return the current reading bytes
+     *
+     * @return The reading bytes
+     */
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    /**
+     * Set the index of the current reading byte of
+     * the byte array
+     *
+     * @param index
+     *             The new index (need to be < than getBytes().length)
+     */
+    public void setReadingIndex(int index) {
+        if(index >= bytes.length)
+            throw new IllegalArgumentException("index >= bytes.length");
+
+        this.index = index;
+    }
+
+    /**
+     * Return the index of the current reading byte
+     * of the byte array
+     *
+     * @return The current reading index
+     */
+    public int getReadingIndex() {
+        return this.index;
+    }
 
 }
